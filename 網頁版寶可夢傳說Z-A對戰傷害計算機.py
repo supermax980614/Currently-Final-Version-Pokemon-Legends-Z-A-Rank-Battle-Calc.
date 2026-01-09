@@ -199,7 +199,7 @@ def Spower(power,c,d,buffatk,buffdef,criticle,light,typatk,typem,typdef,status,b
         damagemin=1
     if damagemax>0 and damagemax<1:
         damagemax=1
-        
+    damagemin=math.floor(damagemin) ; damagemax=math.floor(damagemax)    
     listdamage.append(damagemin) ; listdamage.append(damagemax)
     return listdamage
 
@@ -427,6 +427,7 @@ pokemon = {
     "差不多娃娃": [103, 60, 86, 60, 86, 50, ["normal", "none"]], "蒂安希": [50, 100, 150, 100, 150, 50, ["rock", "fairy"]],
     "龍頭地鼠": [110, 130, 60, 50, 65, 88, ["ground", "steel"]], "賽富豪": [87, 60, 95, 133, 91, 84, ["steel", "ghost"]],
     "水伊布": [130, 65, 60, 110, 95, 65, ["water", "none"]], "冰伊布": [65, 60, 110, 130, 95, 65, ["ice", "none"]],
+    "達克萊伊": [70, 90, 90, 135, 90, 125, ["dark", "none"]],
     "基格爾德10%": [54, 100, 71, 61, 85, 115, ["dragon", "ground"]],"基格爾德50%": [108, 100, 121, 81, 95, 95, ["dragon", "ground"]],
     "基格爾德100%": [216, 100, 121, 91, 95, 85, ["dragon", "ground"]],"超級基格爾德": [216, 70, 91, 216, 85, 100, ["dragon", "ground"]]
     # ... 這裡可依需求繼續擴展到 236 隻 ...
@@ -436,7 +437,8 @@ Move = {
     "熱風": ["s", "fire", 95], "爆炸烈焰": ["s", "fire", 150], "日光束": ["s", "grass", 120], 
     "近身戰": ["p", "fighting", 120], "暴風": ["s", "flying", 110], "大字爆炎": ["s", "fire", 110],
     "地震": ["p", "ground", 100], "流星群": ["s", "dragon", 130], "加農水炮": ["s", "water", 150],
-    "冷凍乾燥": ["s", "ice", 70], "千箭齊發": ["p", "ground", 90], "歸無之光": ["s", "dragon", 200],"冰凍光束": ["s", "ice", 90]
+    "冷凍乾燥": ["s", "ice", 70], "千箭齊發": ["p", "ground", 90], "歸無之光": ["s", "dragon", 200],"冰凍光束": ["s", "ice", 90],
+    "惡之波動": ["s", "dark", 80],"十萬伏特": ["s", "electric", 90],"食夢": ["s", "psychic", 100]
 }
 
 Item = [
@@ -577,4 +579,5 @@ if st.button("🔮 執行計算", use_container_width=True):
 
 
     
+
 
