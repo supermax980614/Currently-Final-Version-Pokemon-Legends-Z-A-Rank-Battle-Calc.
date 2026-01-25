@@ -1,9 +1,8 @@
 import streamlit as st
 import math
 
-# --- 1. 核心函數 (保持不變) ---
+# --- 1. 核心函數 (完全保留原本邏輯) ---
 def Spower(power,c,d,buffatk,buffdef,criticle,light,typatk,typem,typdef,status,buff,debuff,plus,move):
-    # ... (此處保留您原本的 Spower 邏輯) ...
     listdamage=[]
     c*=buffatk ; d*=buffdef
     if item2=="突擊背心":
@@ -32,7 +31,7 @@ def Spower(power,c,d,buffatk,buffdef,criticle,light,typatk,typem,typdef,status,b
     for k in  range(0,len(typdef)):
             if typem=="normal":
                 if item1=="一般寶石"and k==0:
-                     damagemin*=1.2 ; damagemax*=1.2                  
+                     damagemin*=1.2 ; damagemax*=1.2                                  
                 if typdef[k]=="steel":
                      damagemin*=0.5 ; damagemax*=0.5
                 elif typdef[k]=="ghost":
@@ -198,7 +197,6 @@ def Spower(power,c,d,buffatk,buffdef,criticle,light,typatk,typem,typdef,status,b
     return listdamage
 
 def Ppower(power,a,b,buffatk,buffdef,criticle,reflect,typatk,typem,typdef,status,buff,debuff,plus,move):
-    # ... (此處保留您原本的 Ppower 邏輯) ...
     listdamage=[]
     a*=buffatk ; b*=buffdef
     inner=math.floor(22*power*a/b)
@@ -222,12 +220,13 @@ def Ppower(power,a,b,buffatk,buffdef,criticle,reflect,typatk,typem,typdef,status
         damagemin*=1.1 ; damagemax*=1.1
     damagemin=math.floor(damagemin) ; damagemax=math.floor(damagemax)
     if typem==typatk[0] or (len(typatk)>1 and typem==typatk[1]):
-       damagemin=math.floor(damagemin*1.5) ; damagemax=math.floor(damagemax*1.5)
+        damagemin=math.floor(damagemin*1.5) ; damagemax=math.floor(damagemax*1.5)
     dmin=damagemin ; dmax=damagemax
+    # (此處與 Spower 屬性倍率判斷邏輯一致，已略過以節省空間但保持不變)
     for k in  range(0,len(typdef)):
             if typem=="normal":
                 if item1=="一般寶石"and k==0:
-                     damagemin*=1.2 ; damagemax*=1.2                  
+                     damagemin*=1.2 ; damagemax*=1.2                                  
                 if typdef[k]=="steel":
                      damagemin*=0.5 ; damagemax*=0.5
                 elif typdef[k]=="ghost":
@@ -392,7 +391,7 @@ def Ppower(power,a,b,buffatk,buffdef,criticle,reflect,typatk,typem,typdef,status
     listdamage.append(damagemin) ; listdamage.append(damagemax)
     return listdamage
 
-# --- 2. 數據定義 --- (同原版內容)
+# --- 2. 數據定義 ---
 pokemon = {
     "妙蛙花": [80, 82, 83, 100, 100, 80, ["grass", "poison"]], "噴火龍": [78, 84, 78, 109, 85, 100, ["fire", "flying"]],
     "水箭龜": [79, 83, 100, 85, 105, 78, ["water", "none"]], "大比鳥": [83, 80, 75, 70, 70, 101, ["normal", "flying"]],
@@ -428,7 +427,7 @@ Move = {
     "近身戰": ["p", "fighting", 120], "暴風": ["s", "flying", 110], "大字爆炎": ["s", "fire", 110],
     "地震": ["p", "ground", 100], "流星群": ["s", "dragon", 130], "加農水炮": ["s", "water", 150],
     "冷凍乾燥": ["s", "ice", 70], "千箭齊發": ["p", "ground", 90], "歸無之光": ["s", "dragon", 200],"冰凍光束": ["s", "ice", 90],
-    "惡之波動": ["s", "dark", 80],"十萬伏特": ["s", "electric", 90],"食夢": ["s", "psychic", 100],"等離子閃電拳": ["P", "electric", 100]
+    "惡之波動": ["s", "dark", 80],"十萬伏特": ["s", "electric", 90],"食夢": ["s", "psychic", 100],"等離子閃電拳": ["p", "electric", 100]
 }
 
 Item = [
@@ -446,18 +445,15 @@ nature_effects = {
     "不變": ("-", "-")
 }
 
-# --- 3. Streamlit 介面 與 Session State 初始化 ---
-
+# --- 3. Streamlit 介面 與 Session State ---
 st.set_page_config(page_title="Pokémon ZA 傷害計算器", layout="wide")
 st.title("⚔️ Pokémon ZA 傷害計算器")
 
-# 初始化 session_state 用於儲存 UI 組件的值
 if 'swap_init' not in st.session_state:
     st.session_state.pa = list(pokemon.keys())[0]
     st.session_state.pd = list(pokemon.keys())[1]
     st.session_state.item1 = "無"
     st.session_state.item2 = "無"
-    # 初始化個體與努力值 (預設為 31/0)
     for side in ["攻擊", "防守"]:
         for k in ["H", "A", "B", "C", "D", "S"]:
             st.session_state[f"iv_{side}_{k}"] = 31
@@ -467,26 +463,20 @@ if 'swap_init' not in st.session_state:
             st.session_state[f"stage_{side}_{k}"] = 0
     st.session_state.swap_init = True
 
-# --- 切換按鈕函數 ---
 def swap_sides():
-    # 交換寶可夢與道具
     st.session_state.pa, st.session_state.pd = st.session_state.pd, st.session_state.pa
     st.session_state.item1, st.session_state.item2 = st.session_state.item2, st.session_state.item1
-    
-    # 交換側邊欄數值 (性格、個體、努力、階級)
     for k in ["H", "A", "B", "C", "D", "S"]:
         st.session_state[f"iv_攻擊_{k}"], st.session_state[f"iv_防守_{k}"] = st.session_state[f"iv_防守_{k}"], st.session_state[f"iv_攻擊_{k}"]
         st.session_state[f"ev_攻擊_{k}"], st.session_state[f"ev_防守_{k}"] = st.session_state[f"ev_防守_{k}"], st.session_state[f"ev_攻擊_{k}"]
-    
     st.session_state[f"nat_攻擊"], st.session_state[f"nat_防守"] = st.session_state[f"nat_防守"], st.session_state[f"nat_攻擊"]
-    
     for k in ["A", "B", "C", "D", "S"]:
         st.session_state[f"stage_攻擊_{k}"], st.session_state[f"stage_防守_{k}"] = st.session_state[f"stage_防守_{k}"], st.session_state[f"stage_攻擊_{k}"]
 
-# 放置 Swap 按鈕
 if st.button("🔄 攻守互換 (Swap Sides)", use_container_width=True):
     swap_sides()
 
+# --- 側邊欄：詳細數值 ---
 st.sidebar.header("⚙️ 詳細數值設定")
 
 def get_stats_input(prefix):
@@ -501,9 +491,10 @@ def get_stats_input(prefix):
     ivs = {k: col_iv.number_input(f"{k} 個體", 0, 31, key=f"iv_{prefix}_{k}") for k in ["H", "A", "B", "C", "D", "S"]}
     evs = {k: col_ev.number_input(f"{k} 努力", 0, 252, key=f"ev_{prefix}_{k}") for k in ["H", "A", "B", "C", "D", "S"]}
     
-    st.sidebar.write(f"📈 {prefix}能力階級 (HP除外)")
+    st.sidebar.write(f"📈 {prefix}能力階級")
     stages = {}
     col1, col2 = st.sidebar.columns(2)
+    # 將能力階級選項限制在 -1, 0, 1
     for i, k in enumerate(["A", "B", "C", "D", "S"]):
         target_col = col1 if i % 2 == 0 else col2
         stages[k] = target_col.selectbox(f"{k} 階級", [-1, 0, 1], key=f"stage_{prefix}_{k}")
@@ -513,10 +504,19 @@ def get_stats_input(prefix):
 iv_atk, ev_atk, n_atk, stage_atk = get_stats_input("攻擊")
 iv_def, ev_def, n_def, stage_def = get_stats_input("防守")
 
-LvAtk = 50
-LvDef = 50
+# --- 計算能力值函數 ---
+def calc_stat(base, iv, ev, lv, nature_mod, is_hp=False):
+    if is_hp:
+        return int((((math.floor(base*2+iv+(ev/4)))*lv)/100)+10+lv)
+    else:
+        return int(((((math.floor(base*2+iv+(ev/4)))*lv)/100)+5)*nature_mod)
 
-# --- UI 配置 (綁定 session_state) ---
+def get_stage_multiplier(stage):
+    if stage == 1: return 1.5
+    if stage == -1: return 2/3
+    return 1.0
+
+# --- 主介面配置 ---
 c1, c2 = st.columns(2)
 with c1:
     pa = st.selectbox("選擇攻擊方寶可夢", list(pokemon.keys()), key="pa")
@@ -534,63 +534,13 @@ with c2:
     is_burn = st.checkbox("攻擊方處於灼傷狀態")
     def_buff_active = st.checkbox("🛡️ 防禦力 Buff (額外 2 倍)")
 
-# --- 計算邏輯 (保持不變) ---
-def calc_stat(base, iv, ev, lv, nature_mod, is_hp=False):
-    if is_hp:
-        return int((((math.floor(base*2+iv+(ev/4)))*lv)/100)+10+lv)
-    else:
-        return int(((((math.floor(base*2+iv+(ev/4)))*lv)/100)+5)*nature_mod)
-
-def get_stage_multiplier(stage):
-    if stage == 1: return 1.5
-    if stage == -1: return 2/3
-    return 1.0
-
+# 計算基礎能力值 (不含階級)
+LvAtk, LvDef = 50, 50
 abAtk = {k: calc_stat(pokemon[pa][i], iv_atk[k], ev_atk[k], LvAtk, n_atk.get(k, 1), k=="H") for i, k in enumerate(["H", "A", "B", "C", "D", "S"])}
 abAtk["Type"] = pokemon[pa][6]
 
 abDef = {k: calc_stat(pokemon[pd][i], iv_def[k], ev_def[k], LvDef, n_def.get(k, 1), k=="H") for i, k in enumerate(["H", "A", "B", "C", "D", "S"])}
 abDef["Type"] = pokemon[pd][6]
 
-if st.button("🔮 執行計算", use_container_width=True):
-    move = Move[move_name]
-    m_atk = (2 if atk_buff_active else 1) * get_stage_multiplier(stage_atk["A" if move[0]=="p" else "C"])
-    m_def = (2 if def_buff_active else 1) * get_stage_multiplier(stage_def["B" if move[0]=="p" else "D"])
-    
-    if move[0] == "s":
-        listdamage = Spower(move[2], abAtk["C"], abDef["D"], m_atk, m_def, criticlehit, Lightscreen, abAtk["Type"], move[1], abDef["Type"], is_burn, False, False, Plus, move_name)
-    else:
-        listdamage = Ppower(move[2], abAtk["A"], abDef["B"], m_atk, m_def, criticlehit, Reflection, abAtk["Type"], move[1], abDef["Type"], is_burn, False, False, Plus, move_name)
-
-    st.divider()
-    permin = listdamage[0]/abDef["H"]
-    permax = listdamage[1]/abDef["H"]
-    
-    col_res1, col_res2 = st.columns(2)
-    with col_res1:
-        st.subheader(f"📊 傷害結果: {pa} vs {pd}")
-        st.metric("造成傷害區間", f"{listdamage[0]} ~ {listdamage[1]}")
-        st.write(f"對手總 HP: {abDef['H']}")
-    
-    with col_res2:
-        st.subheader("📉 削血比例")
-        st.progress(min(permax, 1.0))
-        st.write(f"傷害百分比: **{permin:.1%} ~ {permax:.1%}**")
-
-    if permin >= 1:
-        st.success("🏆 確定一擊擊倒 (確一)")
-    elif permin < 1 and permax >= 1:
-        killper = (listdamage[1]-abDef["H"])/(listdamage[1]-listdamage[0]) if listdamage[1] != listdamage[0] else 1.0
-        st.warning(f"🎲 亂數一擊擊倒 (擊殺率: {killper:.1%})")
-    elif permin >= 0.5:
-        st.info("🎯 確定二擊擊倒 (確二)")
-    elif permax >= 0.5:
-        st.info("⚖️ 亂數二擊擊倒 (亂二)")
-    elif permin>0 and permax>0:
-        st.error("📉 傷害不足 (不夠痛)")
-    else:
-        st.error("X 無效!!!!!")
-
-    with st.expander("查看實際能力面板 (Lv.50)"):
-        st.write("攻擊方:", abAtk)
-        st.write("防守方:", abDef)
+# --- 執行計算 ---
+if st.button("
