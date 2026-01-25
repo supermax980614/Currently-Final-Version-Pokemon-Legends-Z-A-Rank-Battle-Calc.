@@ -543,4 +543,52 @@ abDef = {k: calc_stat(pokemon[pd][i], iv_def[k], ev_def[k], LvDef, n_def.get(k, 
 abDef["Type"] = pokemon[pd][6]
 
 # --- 執行計算 ---
-if st.button("
+if st.button("🔮 執行計算", use_container_width=True):
+    move = Move[move_name]
+    
+    # 這裡讓能力階級調整發揮作用：
+    # 根據招式類別(p/s) 決定使用哪個能力的階級乘數
+    if move[0] == "s":
+        # 特殊攻擊：抓取攻擊方 C 階級與防守方 D 階級
+        m_atk = (2 if atk_buff_active else 1) * get_stage_multiplier(stage_atk["C"])
+        m_def = (2 if def_buff_active else 1) * get_stage_multiplier(stage_def["D"])
+        listdamage = Spower(move[2], abAtk["C"], abDef["D"], m_atk, m_def, criticlehit, Lightscreen, abAtk["Type"], move[1], abDef["Type"], is_burn, False, False, Plus, move_name)
+    else:
+        # 物理攻擊：抓取攻擊方 A 階級與防守方 B 階級
+        m_atk = (2 if atk_buff_active else 1) * get_stage_multiplier(stage_atk["A"])
+        m_def = (2 if def_buff_active else 1) * get_stage_multiplier(stage_def["B"])
+        listdamage = Ppower(move[2], abAtk["A"], abDef["B"], m_atk, m_def, criticlehit, Reflection, abAtk["Type"], move[1], abDef["Type"], is_burn, False, False, Plus, move_name)
+
+    st.divider()
+    permin = listdamage[0]/abDef["H"]
+    permax = listdamage[1]/abDef["H"]
+    
+    col_res1, col_res2 = st.columns(2)
+    with col_res1:
+        st.subheader(f"📊 傷害結果: {pa} vs {pd}")
+        st.metric("造成傷害區間", f"{listdamage[0]} ~ {listdamage[1]}")
+        st.write(f"對手總 HP: {abDef['H']}")
+    
+    with col_res2:
+        st.subheader("📉 削血比例")
+        st.progress(min(permax, 1.0))
+        st.write(f"傷害百分比: **{permin:.1%} ~ {permax:.1%}**")
+
+    # 結果判定
+    if permin >= 1:
+        st.success("🏆 確定一擊擊倒 (確一)")
+    elif permin < 1 and permax >= 1:
+        killper = (listdamage[1]-abDef["H"])/(listdamage[1]-listdamage[0]) if listdamage[1] != listdamage[0] else 1.0
+        st.warning(f"🎲 亂數一擊擊倒 (擊殺率: {killper:.1%})")
+    elif permin >= 0.5:
+        st.info("🎯 確定二擊擊倒 (確二)")
+    elif permax >= 0.5:
+        st.info("⚖️ 亂數二擊擊倒 (亂二)")
+    elif permin > 0:
+        st.error("📉 傷害不足 (不夠痛)")
+    else:
+        st.error("X 無效!!!!!")
+
+    with st.expander("查看實際能力面板 (Lv.50)"):
+        st.write("攻擊方基礎能力 (未計階級):", abAtk)
+        st.write("防守方基礎能力 (未計階級):", abDef)
